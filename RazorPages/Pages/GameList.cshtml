@@ -1,0 +1,31 @@
+@page "{Genre?}"
+@using RazorPages.Models
+@model RazorPages.Pages.GameList
+
+@functions
+{
+    IEnumerable<Game> FilterByGenre(string genre)
+    {
+        return Model.Games.Where(g => g.Genre == genre);
+    }
+}
+
+<form method="post">
+    <input type="text" name="genre" placeholder="Genre..."/>
+    <input type="submit" value="Show games"/>
+</form>
+
+@if (Model.Genre is null)
+{
+    <h3>Genre is not specified.</h3>
+}
+else
+{
+    <h3>Game list:</h3>
+    <ul>
+        @foreach (var game in FilterByGenre(Model.Genre))
+        {
+            <li>@game.Name [@game.Id]</li>
+        }
+    </ul>
+}
