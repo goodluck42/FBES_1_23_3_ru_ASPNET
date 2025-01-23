@@ -1,0 +1,15 @@
+@model IEnumerable<ToDoItem>
+
+
+<ul>
+@foreach (var item in Model)
+{
+    @* <li>@Html.ActionLink(item.Title, "Details", "ToDo", new { *@
+    @*     Id = item.Id *@
+    @* })</li> *@
+    
+    
+    <li><a asp-controller="ToDo" asp-action="Details" asp-route-id="@item.Id">@item.Title</a>
+        <a asp-controller="ToDo" asp-action="Update" asp-route-id="@item.Id">[Edit]</a></li>
+}
+</ul>

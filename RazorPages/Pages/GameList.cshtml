@@ -2,6 +2,10 @@
 @using RazorPages.Models
 @model RazorPages.Pages.GameList
 
+@section Styles {
+    <link rel="stylesheet" href="css/gamelist.css">
+}
+
 @functions
 {
     IEnumerable<Game> FilterByGenre(string genre)

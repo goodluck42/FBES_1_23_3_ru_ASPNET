@@ -1,0 +1,40 @@
+@addTagHelper *, ToDoList
+
+@model ToDoItem
+
+<form asp-action="Update" method="post">
+    <input name="title" placeholder="Title" value="@Model.Title"/>
+    <input name="description" placeholder="Description" value="@Model.Description"/>
+    <input type="hidden" name="id" value="@Model.Id">
+
+    <select name="priority">
+        @if (Model.Priority == ToDoItemPriority.Low)
+        {
+            <option selected value="1">Low</option>
+        }
+        else
+        {
+            <option name="priority" value="1">Low</option>
+        }
+
+        @if (Model.Priority == ToDoItemPriority.Medium)
+        {
+            <option selected value="2">Medium</option>
+        }
+        else
+        {
+            <option name="priority" value="2">Medium</option>
+        }
+
+        @if (Model.Priority == ToDoItemPriority.High)
+        {
+            <option selected value="3">High</option>
+        }
+        else
+        {
+            <option value="3">High</option>
+        }
+    </select>
+
+    <input type="submit" value="Update item"/>
+</form>

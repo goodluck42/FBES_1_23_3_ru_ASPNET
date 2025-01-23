@@ -1,0 +1,21 @@
+@model IEnumerable<StockItem>
+
+@{
+    var counter = 0;
+}
+
+<ul>
+    @foreach (var item in Model)
+    {
+        counter++;
+        <li>@item.Id: @item.Name</li>
+    }
+</ul>
+
+<p>Count = @counter</p>
+
+<form method="post" asp-controller="Stock" asp-action="AddItem">
+    <input name="id" placeholder="Id..."/>
+    <input name="name" placeholder="Name..."/>
+    <input type="submit" value="Add item"/>
+</form>

@@ -1,0 +1,51 @@
+@using ToDoList.Extensions
+@* <form asp-action="Create" method="post"> *@
+@*     <input name="title" placeholder="Title"/> *@
+@*     <input name="description" placeholder="Description"/> *@
+@* *@
+@*     <select> *@
+@*         <option name="priority" value="1">Low</option> *@
+@*         <option name="priority" value="2">Medium</option> *@
+@*         <option name="priority" value="3">High</option> *@
+@*     </select> *@
+@* *@
+@*     <input type="submit"/> *@
+@* </form> *@
+
+@using (Html.BeginForm("Create", "ToDo", new { }, FormMethod.Post, true, new { }))
+{
+    @* @Html.Label("title") *@
+    @Html.TextBox("title", null, string.Empty, new
+    {
+        Placeholder = "Title"
+    })
+    @Html.TextBox("description", null, string.Empty, new
+    {
+        Placeholder = "Description"
+    })
+
+    const int options = 3;
+
+    var selectOptions = new SelectListItem[options]
+    {
+        new SelectListItem("Low", "1"),
+        new SelectListItem("Medium", "2"),
+        new SelectListItem("High", "3"),
+    };
+
+    @Html.DropDownList("priority", selectOptions)
+
+
+    @* @Html.TextBox(".", "Add item", string.Empty, new *@
+    @* { *@
+    @*     Type = "submit" *@
+    @* }) *@
+
+
+    @Html.Submit(new
+    {
+        Value = "Add item"
+    })
+
+    Html.EndForm();
+}
