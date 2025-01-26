@@ -1,4 +1,6 @@
-namespace ToDoList.Models;
+using ToDoList.Models;
+
+namespace ToDoList.Entity;
 
 public class ToDoItem
 {
@@ -9,4 +11,6 @@ public class ToDoItem
 	public DateTime? CompletionDateTime { get; set; }
 
 	public bool IsCompleted => CompletionDateTime is not null;
+
+	public Guid Version { get; set; }
 }

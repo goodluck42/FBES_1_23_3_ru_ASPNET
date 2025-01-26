@@ -1,12 +1,17 @@
 using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
+using ToDoList.Data;
 using ToDoList.Dtos;
+using ToDoList.Entity;
 using ToDoList.Models;
 using ToDoList.Services;
 
 namespace ToDoList.Controllers;
 
-public class ToDoController([FromKeyedServices(ServiceStaticKeys.ToDoService)] IToDoContext toDoContext, Mapper mapper)
+public class ToDoController(
+	[FromKeyedServices(ServiceStaticKeys.ToDoService)] IToDoContext toDoContext,
+	Mapper mapper)
 	: Controller
 {
 	public async Task<IActionResult> Index()
@@ -39,7 +44,7 @@ public class ToDoController([FromKeyedServices(ServiceStaticKeys.ToDoService)] I
 	}
 
 	[HttpGet]
-	public async Task<IActionResult> List()
+	public async Task<IActionResult> List(int? take, int? skip)
 	{
 		return View(model: await toDoContext.GetAsync());
 	}

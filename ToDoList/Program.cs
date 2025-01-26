@@ -1,5 +1,6 @@
 using AutoMapper;
 using ToDoList;
+using ToDoList.Data;
 using ToDoList.Services;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -8,12 +9,12 @@ builder.Services.AddRouting(opts => { opts.LowercaseUrls = true; });
 builder.Services.AddKeyedSingleton<IToDoContext, ToDoContextLocal>(ServiceStaticKeys.ToDoService);
 builder.Services.AddSingleton(_ => MapperConfig.Init());
 builder.Services.AddControllersWithViews();
+builder.Services.AddDbContextFactory<AppDbContext>();
 
 var app = builder.Build();
 
 if (!app.Environment.IsDevelopment())
 {
-	// The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
 	app.UseHsts();
 }
 
@@ -26,3 +27,13 @@ app.MapControllerRoute(
 	pattern: "{controller=ToDo}/{action=Index}");
 
 app.Run();
+
+
+IOffsetPaginationBuild build = null!;
+
+build.SelectEntity(() =>
+{
+	var dbContext = app.Services.GetRequiredService<AppDbContext>();
+
+	return dbContext.ToDoItems;
+}).Skip(5).Take(10).GetResult();

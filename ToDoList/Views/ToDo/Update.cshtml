@@ -1,6 +1,6 @@
 @addTagHelper *, ToDoList
 
-@model ToDoItem
+@model ToDoList.Entity.ToDoItem
 
 <form asp-action="Update" method="post">
     <input name="title" placeholder="Title" value="@Model.Title"/>
