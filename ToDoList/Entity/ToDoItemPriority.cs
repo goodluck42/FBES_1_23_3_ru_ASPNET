@@ -1,8 +1,7 @@
-namespace ToDoList.Models;
+namespace ToDoList.Entity;
 
 public enum ToDoItemPriority
 {
-	Unspecified,
 	Low,
 	Medium,
 	High

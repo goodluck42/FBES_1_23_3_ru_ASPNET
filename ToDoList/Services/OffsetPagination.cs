@@ -1,5 +1,6 @@
 namespace ToDoList.Services;
 
+[Obsolete]
 public sealed class OffsetPagination<T>(IEnumerable<T> entities) : IOffsetPagination<T>
 	where T : class
 {

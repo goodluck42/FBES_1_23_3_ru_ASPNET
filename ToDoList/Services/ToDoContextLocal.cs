@@ -1,6 +1,5 @@
 using ToDoList.Entity;
 using ToDoList.Exceptions;
-using ToDoList.Models;
 
 namespace ToDoList.Services;
 

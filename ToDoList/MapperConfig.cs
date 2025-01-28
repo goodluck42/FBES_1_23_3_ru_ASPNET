@@ -1,7 +1,6 @@
 using AutoMapper;
 using ToDoList.Dtos;
 using ToDoList.Entity;
-using ToDoList.Models;
 
 namespace ToDoList;
 

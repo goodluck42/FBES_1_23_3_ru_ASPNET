@@ -1,5 +1,9 @@
+using Microsoft.EntityFrameworkCore;
+using ToDoList.Data;
+
 namespace ToDoList.Services;
 
+[Obsolete]
 public interface IOffsetPagination<out T>
 	where T : class
 {

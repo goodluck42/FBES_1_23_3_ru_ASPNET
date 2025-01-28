@@ -1,15 +1,24 @@
 @model IEnumerable<ToDoList.Entity.ToDoItem>
 
 
+<form asp-controller="ToDo" asp-action="List" method="get">
+    <input name="offset" type="number" placeholder="Offset..."/>
+    <input name="count" type="number" placeholder="Count..."/>
+    <input type="submit" value="Get todos"/>
+</form>
+
 <ul>
-@foreach (var item in Model)
-{
-    @* <li>@Html.ActionLink(item.Title, "Details", "ToDo", new { *@
-    @*     Id = item.Id *@
-    @* })</li> *@
-    
-    
-    <li><a asp-controller="ToDo" asp-action="Details" asp-route-id="@item.Id">@item.Title</a>
-        <a asp-controller="ToDo" asp-action="Update" asp-route-id="@item.Id">[Edit]</a></li>
-}
+    @{
+        int number = 0;
+    }
+    @foreach (var item in Model)
+    {
+        @* <li>@Html.ActionLink(item.Title, "Details", "ToDo", new { *@
+        @*     Id = item.Id *@
+        @* })</li> *@
+
+
+        <li><span>ID: @(item.Id) </span><a asp-controller="ToDo" asp-action="Details" asp-route-id="@item.Id">@item.Title</a>
+            <a asp-controller="ToDo" asp-action="Update" asp-route-id="@item.Id">[Edit]</a></li>
+    }
 </ul>

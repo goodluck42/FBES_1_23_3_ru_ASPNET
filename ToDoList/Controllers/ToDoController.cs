@@ -1,17 +1,16 @@
 using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using ToDoList.Data;
 using ToDoList.Dtos;
 using ToDoList.Entity;
-using ToDoList.Models;
 using ToDoList.Services;
 
 namespace ToDoList.Controllers;
 
 public class ToDoController(
-	[FromKeyedServices(ServiceStaticKeys.ToDoService)] IToDoContext toDoContext,
-	Mapper mapper)
+	IToDoContext toDoContext,
+	Mapper mapper,
+	IOffsetTodoItemPagination pagination,
+	ITodoItemSorter sorter)
 	: Controller
 {
 	public async Task<IActionResult> Index()
@@ -44,9 +43,16 @@ public class ToDoController(
 	}
 
 	[HttpGet]
-	public async Task<IActionResult> List(int? take, int? skip)
+	public async Task<IActionResult> List(int offset = Constants.DefaultOffset, int count = Constants.DefaultTake,
+		ToDoItemSortOption? sortBy = null,
+		bool isAscending = true)
 	{
-		return View(model: await toDoContext.GetAsync());
+		if (sortBy is null)
+		{
+			return View(model: await pagination.GetAsync(new PaginationSegment(offset, count)));
+		}
+
+		return View(model: await sorter.SortBy(sortBy.Value, isAscending, new PaginationSegment(offset, count)));
 	}
 
 	// todo/details?id=1 
@@ -86,12 +92,5 @@ public class ToDoController(
 		}
 
 		return BadRequest();
-	}
-
-
-	[HttpGet] // todo/widget
-	public async Task<IActionResult> Widget()
-	{
-		return PartialView("Widget");
 	}
 }
