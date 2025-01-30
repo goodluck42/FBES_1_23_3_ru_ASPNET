@@ -1,0 +1,32 @@
+﻿@using System.Dynamic
+@using System.Net
+@using System.Text.Json
+
+@{
+    ViewData["Title"] = "Home Page";
+}
+
+@{
+    var httpClient = new HttpClient
+    {
+        DefaultRequestVersion = HttpVersion.Version20,
+        DefaultRequestHeaders =
+        {
+            { "ContentType", "application/json" }
+        }
+    };
+
+    var httpResponse = await httpClient.GetAsync("http://localhost:5032/api/todos/1");
+    var json = await httpResponse.Content.ReadAsStringAsync();
+
+    dynamic? result = JsonSerializer.Deserialize<ExpandoObject>(json);
+
+    if (result is null)
+    {
+        return;
+    }
+
+    <div>@result.id</div>
+    <div>@result.title</div>
+    <div>@result.description</div>
+}

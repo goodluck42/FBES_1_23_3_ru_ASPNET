@@ -1,0 +1,25 @@
+@host = http://localhost:5032
+
+GET {{host}}/api/todos/910/10?sortby=0
+
+
+###
+GET {{host}}/api/todos/1
+
+
+###
+
+// https://mysite.com/api/v1/todos/1
+// https://mysite.com/api/v2/todos/1
+
+
+###
+
+POST {{host}}/todos
+Content-Type: application/json
+
+{
+    "title": "MySuperTitle",
+    "description": "MySuperDescription",
+    "priority": 0
+}
