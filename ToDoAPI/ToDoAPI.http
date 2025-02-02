@@ -1,13 +1,10 @@
-@host = http://localhost:5032
+@host = http://localhost:5032/api
 
-GET {{host}}/api/todos/910/10?sortby=0
-
-
-###
-GET {{host}}/api/todos/1
+GET {{host}}/todos/910/10?sortby=0
 
 
 ###
+GET {{host}}/todos/1
 
 // https://mysite.com/api/v1/todos/1
 // https://mysite.com/api/v2/todos/1
@@ -23,3 +20,8 @@ Content-Type: application/json
     "description": "MySuperDescription",
     "priority": 0
 }
+
+
+###
+
+GET {{host}}/todos/dump

@@ -1,0 +1,38 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Document</title>
+    <script>
+        function getPatternResult(id) {
+            return `http://localhost:5032/api/todos/attachImage/${id}`;
+        }
+
+        document.addEventListener("DOMContentLoaded", () => {
+            const [todo_id, todo_form] = [document.getElementById("todo_id"), document.getElementById("todo_form")];
+
+            function setValue() {
+                todo_form.setAttribute("action", getPatternResult(todo_id.value));
+            }
+
+            setValue();
+
+            todo_id.addEventListener("input", () => setValue());
+        });
+    </script>
+</head>
+<body style="height: 100vh; display: flex; align-items: center; justify-content: center;">
+<form id="todo_form"
+      style="display: flex; justify-content: center; align-items: center; flex-direction: column; gap: 1rem;"
+      method="post"
+      action=""
+      enctype="multipart/form-data">
+    <label>
+        <input id="todo_id" type="number" value="id">
+    </label>
+    <input type="file" name="file">
+    <input type="submit" value="Add image">
+</form>
+</body>
+</html>
