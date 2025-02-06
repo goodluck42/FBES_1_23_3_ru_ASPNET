@@ -19,4 +19,6 @@ public class AppDbContext(IConfiguration configuration) : DbContext
 	}
 
 	public DbSet<ToDoItem> ToDoItems { get; set; }
+	public DbSet<Role> Roles { get; set; }
+	public DbSet<Account> Accounts { get; set; }
 }

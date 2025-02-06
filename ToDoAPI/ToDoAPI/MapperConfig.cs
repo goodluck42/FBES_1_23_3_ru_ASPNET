@@ -11,8 +11,9 @@ public class MapperConfig
 		var config = new MapperConfiguration(cfg =>
 		{
 			cfg.CreateMap<ToDoItem, ToDoItemDto>().ReverseMap();
+			cfg.CreateMap<Account, AccountDto>().ReverseMap();
 		});
-		
+
 		return new Mapper(config);
 	}
 }

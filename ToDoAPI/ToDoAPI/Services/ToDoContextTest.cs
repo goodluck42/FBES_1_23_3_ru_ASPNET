@@ -86,7 +86,7 @@ public sealed class ToDoContextTest : ToDoContextBase, IOffsetTodoItemPagination
 
 		return await dbContext.ToDoItems.Skip(paginationSegment.Offset).Take(paginationSegment.Count).ToListAsync();
 	}
-
+	
 	public async Task<IEnumerable<ToDoItem>> SortBy(ToDoItemSortOption option, bool isAscending = true,
 		PaginationSegment? paginationSegment = null)
 	{

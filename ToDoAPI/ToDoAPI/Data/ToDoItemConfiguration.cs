@@ -21,7 +21,7 @@ public sealed class ToDoItemConfiguration : IEntityTypeConfiguration<ToDoItem>
 		int id = 0;
 
 		var enumValues = Enum.GetValues<ToDoItemPriority>();
-		
+
 		faker.RuleFor(e => e.Id, _ => --id)
 			.RuleFor(e => e.Title, f => f.Lorem.Sentence())
 			.RuleFor(e => e.Description, f => f.Lorem.Paragraph())
