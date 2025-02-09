@@ -16,6 +16,8 @@ public class AppDbContext(IConfiguration configuration) : DbContext
 	{
 		//Console.WriteLine("<3");
 		modelBuilder.ApplyConfiguration(new ToDoItemConfiguration());
+		modelBuilder.ApplyConfiguration(new AccountConfiguration());
+		modelBuilder.ApplyConfiguration(new RoleConfiguration());
 	}
 
 	public DbSet<ToDoItem> ToDoItems { get; set; }

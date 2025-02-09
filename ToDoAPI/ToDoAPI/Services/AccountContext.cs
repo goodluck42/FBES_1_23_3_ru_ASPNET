@@ -30,4 +30,18 @@ public class AccountContext(IDbContextFactory<AppDbContext> dbContextFactory) : 
 
 		return dbContext.Accounts.First(a => a.Login == login);
 	}
+
+	public async Task<int> CountAsync()
+	{
+		await using var dbContext = await dbContextFactory.CreateDbContextAsync();
+
+		return await dbContext.Accounts.CountAsync();
+	}
+
+	public async Task<IEnumerable<Role>> GetRolesAsync(int accountId)
+	{
+		await using var dbContext = await dbContextFactory.CreateDbContextAsync();
+
+		return dbContext.Accounts.Include(x => x.Roles).First(x => x.Id == accountId).Roles;
+	}
 }

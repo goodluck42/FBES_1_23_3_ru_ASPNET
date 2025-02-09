@@ -1,9 +1,12 @@
 using System.Text.Json;
 using AutoMapper;
+using Microsoft.AspNetCore.Authorization;
 using ToDoAPI.Dtos;
 using ToDoAPI.Entity;
 
 namespace ToDoAPI.Services;
+
+// ABAC - Attribute Based Access Control
 
 public class ToDoEndpointMapper : IEndpointMapper
 {
@@ -38,9 +41,10 @@ public class ToDoEndpointMapper : IEndpointMapper
 		group.MapGet("/{id:int}",
 			async (IToDoContext context, int id) => Results.Json(await context.GetAsync(id)));
 
-		group.MapGet("/{offset:int}/{count:int}", async (
+		group.MapGet("/{offset:int}/{count:int}", [Authorize] async (
 			IOffsetTodoItemPagination pagination,
 			IToDoItemSorter sorter,
+			HttpContext context,
 			int offset = Constants.DefaultOffset,
 			int count = Constants.DefaultTake,
 			ToDoItemSortOption? sortBy = null,
@@ -73,7 +77,7 @@ public class ToDoEndpointMapper : IEndpointMapper
 			{
 				return Results.BadRequest();
 			}
-			
+
 			var exts = MimeTypes.GetMimeTypeExtensions(formFile.ContentType);
 			var path = $"{id}.{exts.First()}";
 
