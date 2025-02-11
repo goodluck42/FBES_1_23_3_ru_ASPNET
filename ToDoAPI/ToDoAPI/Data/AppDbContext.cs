@@ -18,9 +18,11 @@ public class AppDbContext(IConfiguration configuration) : DbContext
 		modelBuilder.ApplyConfiguration(new ToDoItemConfiguration());
 		modelBuilder.ApplyConfiguration(new AccountConfiguration());
 		modelBuilder.ApplyConfiguration(new RoleConfiguration());
+		modelBuilder.ApplyConfiguration(new RefreshTokenConfiguration());
 	}
 
 	public DbSet<ToDoItem> ToDoItems { get; set; }
 	public DbSet<Role> Roles { get; set; }
 	public DbSet<Account> Accounts { get; set; }
+	public DbSet<RefreshToken> RefreshTokens { get; set; }
 }

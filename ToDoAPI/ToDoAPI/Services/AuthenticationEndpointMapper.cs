@@ -1,4 +1,5 @@
 using System.IdentityModel.Tokens.Jwt;
+using System.Net.Http.Headers;
 using System.Security.Claims;
 using System.Text;
 using AutoMapper;
@@ -36,7 +37,11 @@ public class AuthenticationEndpointMapper : IEndpointMapper
 			});
 
 		group.MapPost("/login",
-			async ([FromServices] IConfiguration configuration, [FromServices] IAccountContext accountContext,
+			async (
+				[FromServices] IAccountContext accountContext,
+				[FromServices] IJwtTokenGenerator jwtTokenGenerator,
+				[FromServices] IRefreshTokenGenerator refreshTokenGenerator,
+				[FromServices] IRefreshTokenManager refreshTokenManager,
 				[FromBody] AccountDto dto) =>
 			{
 				try
@@ -53,24 +58,27 @@ public class AuthenticationEndpointMapper : IEndpointMapper
 						return Results.Unauthorized();
 					}
 
-					var claims = new List<Claim> { new("Login", account.Login) };
-					var roles = await accountContext.GetRolesAsync(account.Id);
+					var jwtToken = await jwtTokenGenerator.GenerateJwtToken(account);
 
-					foreach (var role in roles)
+					RefreshToken refreshToken;
+
+					try
 					{
-						claims.Add(new Claim(ClaimsIdentity.DefaultRoleClaimType, role.Name));
+						refreshToken = await refreshTokenManager.GetByAccountId(account.Id);
+					}
+					catch (InvalidOperationException)
+					{
+						refreshToken = new RefreshToken
+						{
+							AccountId = account.Id,
+							Value = await refreshTokenGenerator.GenerateRefreshToken(account),
+							Expires = DateTime.Now.AddMonths(12),
+						};
 					}
 
-					var jwt = new JwtSecurityToken(configuration.GetJwtIssuer(), configuration.GetJwtAudience(), claims,
-						null, DateTime.Now.AddHours(1),
-						new SigningCredentials(
-							new SymmetricSecurityKey(Encoding.UTF8.GetBytes(configuration.GetJwtSecret())),
-							SecurityAlgorithms.HmacSha256));
+					await refreshTokenManager.AddOrUpdate(refreshToken);
 
-					var handler = new JwtSecurityTokenHandler();
-					var token = handler.WriteToken(jwt);
-
-					return Results.Json(new { Token = token });
+					return Results.Json(new { JwtToken = jwtToken, RefreshToken = refreshToken.Value });
 				}
 				catch
 				{

@@ -4,7 +4,7 @@ GET {{host}}/todos/910/10?sortby=0
 
 
 ###
-GET {{host}}/todos/1
+GET {{host}}/todos/-1
 
 // https://mysite.com/api/v1/todos/1
 // https://mysite.com/api/v2/todos/1
@@ -45,12 +45,12 @@ POST {{host}}/login
 Content-Type: application/json
 
 {
-	"Login": "alex228",
-	"Password": "3.14Door_A2S"
+	"Login": "alex",
+	"Password": "alex"
 }
 
 
 ###
 
 GET {{host}}/admin
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJMb2dpbiI6ImFsZXgyMjgiLCJodHRwOi8vc2NoZW1hcy5taWNyb3NvZnQuY29tL3dzLzIwMDgvMDYvaWRlbnRpdHkvY2xhaW1zL3JvbGUiOiJhZG1pbiIsImV4cCI6MTczOTEyNDc3MCwiaXNzIjoiVG9Eb0FQSSIsImF1ZCI6IlVTRVIifQ.V7OBaZt4KGqiM4QMobsNxb9WoWsSfu0g77jTsR1_w8g
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJMb2dpbiI6ImFsZXgyMjgiLCJodHRwOi8vc2NoZW1hcy5taWNyb3NvZnQuY29tL3dzLzIwMDgvMDYvaWRlbnRpdHkvY2xhaW1zL3JvbGUiOiJhZG1pbiIsImV4cCI6MTczOTI4NzkyOCwiaXNzIjoiVG9Eb0FQSSIsImF1ZCI6IlVTRVIifQ.W082NTaETew8DpHNmiTNfw9hha0Ya3YqWsFAmP4Vg2U
