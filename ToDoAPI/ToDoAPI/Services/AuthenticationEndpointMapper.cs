@@ -21,7 +21,9 @@ public class AuthenticationEndpointMapper : IEndpointMapper
 
 		// 
 		group.MapPost("/signup",
-			async ([FromServices] IAccountContext accountContext, [FromServices] Mapper mapper,
+			async (
+				[FromServices] IAccountContext accountContext,
+				[FromServices] Mapper mapper,
 				[FromBody] AccountDto? dto) =>
 			{
 				if (dto is null)
@@ -35,6 +37,25 @@ public class AuthenticationEndpointMapper : IEndpointMapper
 
 				return Results.Ok();
 			});
+		group.MapPost("/refresh", async (
+			[FromServices] IJwtTokenGenerator jwtTokenGenerator,
+			[FromServices] IRefreshTokenGenerator refreshTokenGenerator,
+			[FromServices] IRefreshTokenManager refreshTokenManager,
+			[FromBody] string rawRefreshToken) =>
+		{
+			try
+			{
+				var refreshToken = await refreshTokenManager.RefreshTokenAsync(rawRefreshToken);
+				var jwtToken = jwtTokenGenerator.GenerateJwtToken(refreshToken.Account!);
+
+				return Results.Json(new { JwtToken = jwtToken, RefreshToken = refreshToken.Value });
+			}
+			catch (InvalidOperationException)
+			{
+				return Results.Unauthorized();
+			}
+		});
+
 
 		group.MapPost("/login",
 			async (
@@ -59,24 +80,7 @@ public class AuthenticationEndpointMapper : IEndpointMapper
 					}
 
 					var jwtToken = await jwtTokenGenerator.GenerateJwtToken(account);
-
-					RefreshToken refreshToken;
-
-					try
-					{
-						refreshToken = await refreshTokenManager.GetByAccountId(account.Id);
-					}
-					catch (InvalidOperationException)
-					{
-						refreshToken = new RefreshToken
-						{
-							AccountId = account.Id,
-							Value = await refreshTokenGenerator.GenerateRefreshToken(account),
-							Expires = DateTime.Now.AddMonths(12),
-						};
-					}
-
-					await refreshTokenManager.AddOrUpdate(refreshToken);
+					var refreshToken = await refreshTokenManager.AssignOrRefreshTokenAsync(account);
 
 					return Results.Json(new { JwtToken = jwtToken, RefreshToken = refreshToken.Value });
 				}

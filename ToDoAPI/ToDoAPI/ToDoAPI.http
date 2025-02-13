@@ -20,9 +20,9 @@ POST {{host}}/todos
 Content-Type: application/json
 
 {
-    "title": "MySuperTitle",
-    "description": "MySuperDescription",
-    "priority": 0
+	"title": "MySuperTitle",
+	"description": "MySuperDescription",
+	"priority": 0
 }
 
 
@@ -36,8 +36,8 @@ POST {{host}}/signup
 Content-Type: application/json
 
 {
-    "Login": "alex228",
-    "Password": "3.14Door_A2S"
+	"Login": "alex",
+	"Password": "alex"
 }
 
 ###
@@ -50,7 +50,20 @@ Content-Type: application/json
 }
 
 
+
+
+###
+### eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJodHRwOi8vc2NoZW1hcy54bWxzb2FwLm9yZy93cy8yMDA1LzA1L2lkZW50aXR5L2NsYWltcy9uYW1lIjoiYWxleCIsImV4cCI6MTczOTQ2NTUzNywiaXNzIjoiVG9Eb0FQSSIsImF1ZCI6IlVTRVIifQ.5lE9NpkcbvUHTCDvOS93WuGdjimP_lyYD6RrRmeW_6o
+### c987cf8ffac0ca073fcc4ad66b67d87184a6d1d5ec65735f26dead0c602c8c06
+
+GET {{host}}/login_info
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJodHRwOi8vc2NoZW1hcy54bWxzb2FwLm9yZy93cy8yMDA1LzA1L2lkZW50aXR5L2NsYWltcy9uYW1lIjoiYWxleCIsImV4cCI6MTczOTQ2NTUzNywiaXNzIjoiVG9Eb0FQSSIsImF1ZCI6IlVTRVIifQ.5lE9NpkcbvUHTCDvOS93WuGdjimP_lyYD6RrRmeW_6o
+
 ###
 
-GET {{host}}/admin
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJMb2dpbiI6ImFsZXgyMjgiLCJodHRwOi8vc2NoZW1hcy5taWNyb3NvZnQuY29tL3dzLzIwMDgvMDYvaWRlbnRpdHkvY2xhaW1zL3JvbGUiOiJhZG1pbiIsImV4cCI6MTczOTI4NzkyOCwiaXNzIjoiVG9Eb0FQSSIsImF1ZCI6IlVTRVIifQ.W082NTaETew8DpHNmiTNfw9hha0Ya3YqWsFAmP4Vg2U
+POST {{host}}/refresh
+Content-Type: application/json
+
+"c987cf8ffac0ca073fcc4ad66b67d87184a6d1d5ec65735f26dead0c602c8c06"
+
+

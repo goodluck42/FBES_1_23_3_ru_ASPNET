@@ -4,5 +4,5 @@ namespace ToDoAPI.Services;
 
 public interface IRefreshTokenGenerator
 {
-	Task<string> GenerateRefreshToken(Account account);
+	Task<string> GenerateRefreshTokenAsync(Account account);
 }

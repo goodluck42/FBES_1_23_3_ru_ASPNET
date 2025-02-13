@@ -13,8 +13,9 @@ public sealed class AccountConfiguration : IEntityTypeConfiguration<Account>
 		builder.HasIndex(e => e.Login).IsUnique();
 		builder.Property(e => e.Password).HasMaxLength(PasswordMaxLength);
 
-		builder.HasOne(e => e.RefreshToken).WithOne(e => e.Account).HasForeignKey<RefreshToken>(e => e.AccountId)
-			.IsRequired();
+		builder.HasOne(e => e.RefreshToken)
+			.WithOne(e => e.Account)
+			.HasForeignKey<RefreshToken>(e => e.AccountId);
 	}
 
 	public const int LoginMaxLength = 128;

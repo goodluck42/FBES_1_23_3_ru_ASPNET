@@ -16,7 +16,7 @@ using HttpVersion = System.Net.HttpVersion;
 
 var builder = WebApplication.CreateBuilder(args);
 
-builder.Services.Configure<JwtOptions>(options => { options.ExpiresIn = TimeSpan.FromMinutes(30); });
+builder.Services.Configure<JwtOptions>(options => { options.ExpiresIn = TimeSpan.FromMinutes(1); });
 
 builder.Services.AddRouting(opts => { opts.LowercaseUrls = true; });
 builder.Services.AddSingleton(_ => MapperConfig.Init());
