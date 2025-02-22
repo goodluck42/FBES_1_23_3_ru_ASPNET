@@ -51,10 +51,17 @@ public class RefreshTokenManager(
 		return refreshToken2;
 	}
 
+	/// <summary>
+	/// fsdfdsf
+	/// </summary>
+	/// <param name="account"></param>
+	/// <returns></returns>
 	public async Task<RefreshToken> AssignOrRefreshTokenAsync(Account account)
 	{
 		await using var dbContext = await dbContextFactory.CreateDbContextAsync();
 
+		// RefreshToken(account, dbContext);
+		
 		var refreshToken = dbContext.RefreshTokens.FirstOrDefault(x => x.AccountId == account.Id);
 
 		if (refreshToken is not null)
@@ -76,5 +83,10 @@ public class RefreshTokenManager(
 		await dbContext.SaveChangesAsync();
 
 		return entry.Entity;
+	}
+
+	private void RefreshToken(Account account, AppDbContext dbContext)
+	{
+		// 
 	}
 }

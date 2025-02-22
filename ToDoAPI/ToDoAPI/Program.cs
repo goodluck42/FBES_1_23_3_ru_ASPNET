@@ -3,12 +3,14 @@ using System.Text;
 using AutoMapper;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.SignalR;
 using Microsoft.IdentityModel.Tokens;
 using ToDoAPI;
 using ToDoAPI.Data;
 using ToDoAPI.Dtos;
 using ToDoAPI.Entity;
 using ToDoAPI.Extensions;
+using ToDoAPI.Middlewares;
 using ToDoAPI.Options;
 using ToDoAPI.Services;
 using AuthenticationSchemes = Microsoft.AspNetCore.Server.HttpSys.AuthenticationSchemes;
@@ -28,6 +30,7 @@ builder.Services.AddScoped<IAccountContext, AccountContext>();
 builder.Services.AddScoped<IJwtTokenGenerator, JwtTokenGenerator>();
 builder.Services.AddScoped<IRefreshTokenGenerator, RefreshTokenGenerator>();
 builder.Services.AddScoped<IRefreshTokenManager, RefreshTokenManager>();
+builder.Services.AddControllers();
 
 builder.Services.ConfigureHttpClientDefaults(b =>
 {
@@ -51,6 +54,11 @@ builder.Services.AddAuthorization();
 
 var app = builder.Build();
 
+app.UseMiddleware<PathLoggerMiddleware>();
+app.UseMiddleware<MethodLoggerMiddleware>();
+
+app.UseHttpsRedirection();
+
 app.UseAuthentication();
 app.UseAuthorization();
 
@@ -60,7 +68,6 @@ if (!app.Environment.IsDevelopment())
 }
 
 app.UseCors(configure => { configure.AllowAnyHeader().AllowAnyMethod().AllowAnyOrigin(); });
-app.UseHttpsRedirection();
 
 #if DEBUG
 app.EnsureDatabaseCreated();
@@ -68,5 +75,22 @@ app.EnsureDatabaseCreated();
 #endif
 app.MapEndpoints<ToDoEndpointMapper>();
 app.MapEndpoints<AuthenticationEndpointMapper>();
+app.MapControllers();
+app.Use((context, @delegate) =>
+{
+	Console.WriteLine("Hello World!");
 
+	return @delegate(context);
+});
+
+// app.MapHub<ChatHub>("/chat");
 app.Run();
+
+
+// public class ChatHub : Hub<ChatHub>
+// {
+// 	public async Task Send(string username, string message)
+// 	{
+// 		await Clients.All.Send(username, $"[{DateTime.Now}]: {message}");
+// 	}
+// }

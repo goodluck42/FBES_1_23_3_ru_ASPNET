@@ -1,8 +1,10 @@
 using System.Text.Json;
 using AutoMapper;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http.HttpResults;
 using ToDoAPI.Dtos;
 using ToDoAPI.Entity;
+using ToDoAPI.Extensions;
 
 namespace ToDoAPI.Services;
 
@@ -14,34 +16,66 @@ public class ToDoEndpointMapper : IEndpointMapper
 	{
 		var group = endpoints.MapGroup("/api/todos");
 
-		group.MapPut("/", async (IToDoContext context, ToDoItem? toDoItem) =>
+		//// versioning
+		// api/v1
+		// api/v2
+		//// HTTP methods
+
+		//// GET
+		// api/v1/users?count=10&offset=5 - GET all users
+		// api/v1/users/{id:int} - GET user by id
+		// api/v1/users/login/{login:str} - GET user by login
+
+		//// POST
+		// api/v1/users - POST add new user
+
+		//// PATCH
+		// api/v1/users/{id}/edit - PATCH partially update user 
+
+		//// PUT & DELETE
+		// api/v1/users/{id} - PUT or DELETE replace or delete a user 
+
+		endpoints.MapGet("/api/v1/my_todos", (int? offset, int? count = 10) =>
 		{
-			if (toDoItem is null)
+			Console.WriteLine("Endpoint");
+
+			return ResultsApi.Json(new
 			{
-				return Results.BadRequest();
-			}
-
-			await context.UpdateAsync(toDoItem);
-
-			return Results.NoContent();
-		});
+				Offset = offset,
+				Count = count,
+				OK = true
+			});
+		}).AddEndpointFilter<ValidationFilter>();
 
 		group.MapPost("/", async (IToDoContext context, Mapper mapper, ToDoItemDto? toDoItemDto) =>
 		{
 			if (toDoItemDto is null)
 			{
-				return Results.BadRequest();
+				return ResultsApi.BadRequest();
 			}
 
 			var addedItem = await context.AddAsync(mapper.Map<ToDoItem>(toDoItemDto));
 
-			return Results.Created($"/todos/{addedItem.Id}", addedItem);
+			return ResultsApi.Created($"/todos/{addedItem.Id}", addedItem);
 		});
 
 		group.MapGet("/{id:int}",
-			async (IToDoContext context, int id) => Results.Json(await context.GetAsync(id)));
+				async (IToDoContext context, int id) => { return ResultsApi.Json(await context.GetAsync(id)); })
+			.AddEndpointFilter(
+				async (ctx, next) =>
+				{
+					var id = ctx.GetArgument<int>(1);
 
-		group.MapGet("/{offset:int}/{count:int}", [Authorize] async (
+					if (id <= 0)
+					{
+						return ResultsApi.BadRequest("Invalid Id");
+					}
+
+					return await next(ctx);
+				});
+
+		// api/v1/todos?offset=5&count=10
+		group.MapGet("/{offset:int}/{count:int}", async (
 			IOffsetTodoItemPagination pagination,
 			IToDoItemSorter sorter,
 			HttpContext context,
@@ -52,13 +86,13 @@ public class ToDoEndpointMapper : IEndpointMapper
 		{
 			if (sortBy is null)
 			{
-				return Results.Json(await pagination.GetAsync(new PaginationSegment(offset, count)));
+				return ResultsApi.Json(await pagination.GetAsync(new PaginationSegment(offset, count)));
 			}
 
-			return Results.Json(await sorter.SortBy(sortBy.Value, isAscending, new PaginationSegment(offset, count)));
-		});
+			return ResultsApi.Json(await sorter.SortBy(sortBy.Value, isAscending, new PaginationSegment(offset, count)));
+		}).RequireAuthorization();
 
-		group.MapGet("/dump", async (IToDoContext context) =>
+		group.MapGet("/dump", async (IToDoContext context, HttpContext httpContext) =>
 		{
 			var data = await context.GetAsync();
 			var jsonBytes = JsonSerializer.SerializeToUtf8Bytes(data, new JsonSerializerOptions
@@ -66,7 +100,7 @@ public class ToDoEndpointMapper : IEndpointMapper
 				WriteIndented = true
 			});
 
-			return Results.File(jsonBytes, "application/json", "dump");
+			return ResultsApi.File(jsonBytes, "application/json", "dump");
 		});
 
 		group.MapPost("/attachImage/{id:int}", async (int id, HttpContext context) =>
@@ -75,7 +109,7 @@ public class ToDoEndpointMapper : IEndpointMapper
 
 			if (formFile is null)
 			{
-				return Results.BadRequest();
+				return ResultsApi.BadRequest();
 			}
 
 			var exts = MimeTypes.GetMimeTypeExtensions(formFile.ContentType);
@@ -85,7 +119,35 @@ public class ToDoEndpointMapper : IEndpointMapper
 
 			await formFile.OpenReadStream().CopyToAsync(fileStream);
 
-			return Results.Ok();
+			return ResultsApi.Ok();
 		});
+	}
+
+	// private static IResult GetMyTodos(int? offset, int? count = 10)
+	// {
+	// 	return ResultsApi.Json(new
+	// 	{
+	// 		Offset = offset,
+	// 		Count = count,
+	// 		OK = true
+	// 	});
+	// }
+}
+
+file sealed class ValidationFilter(IConfiguration configuration) : IEndpointFilter
+{
+	public async ValueTask<object?> InvokeAsync(EndpointFilterInvocationContext context, EndpointFilterDelegate next)
+	{
+		Console.WriteLine($"Filter: {configuration.GetJwtIssuer()}");
+
+		var offset = context.GetArgument<int?>(0);
+		var count = context.GetArgument<int?>(1);
+
+		if (offset is null or < 0 || count is null or < 0)
+		{
+			return ResultsApi.BadRequest("Validation failed");
+		}
+
+		return await next(context);
 	}
 }

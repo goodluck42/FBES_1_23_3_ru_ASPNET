@@ -1,3 +1,4 @@
+global using ResultsApi = Microsoft.AspNetCore.Http.Results;
 using System.IdentityModel.Tokens.Jwt;
 using System.Net.Http.Headers;
 using System.Security.Claims;
@@ -10,6 +11,7 @@ using Microsoft.IdentityModel.Tokens;
 using ToDoAPI.Dtos;
 using ToDoAPI.Entity;
 using ToDoAPI.Extensions;
+
 
 namespace ToDoAPI.Services;
 
@@ -28,14 +30,14 @@ public class AuthenticationEndpointMapper : IEndpointMapper
 			{
 				if (dto is null)
 				{
-					return Results.BadRequest();
+					return ResultsApi.BadRequest();
 				}
 
 				var account = mapper.Map<AccountDto, Account>(dto);
 
 				await accountContext.AddAsync(account);
 
-				return Results.Ok();
+				return ResultsApi.Ok();
 			});
 		group.MapPost("/refresh", async (
 			[FromServices] IJwtTokenGenerator jwtTokenGenerator,
@@ -48,11 +50,11 @@ public class AuthenticationEndpointMapper : IEndpointMapper
 				var refreshToken = await refreshTokenManager.RefreshTokenAsync(rawRefreshToken);
 				var jwtToken = jwtTokenGenerator.GenerateJwtToken(refreshToken.Account!);
 
-				return Results.Json(new { JwtToken = jwtToken, RefreshToken = refreshToken.Value });
+				return ResultsApi.Json(new { JwtToken = jwtToken, RefreshToken = refreshToken.Value });
 			}
 			catch (InvalidOperationException)
 			{
-				return Results.Unauthorized();
+				return ResultsApi.Unauthorized();
 			}
 		});
 
@@ -69,24 +71,26 @@ public class AuthenticationEndpointMapper : IEndpointMapper
 				{
 					if (dto?.Login is null)
 					{
-						return Results.BadRequest();
+						return ResultsApi.BadRequest();
 					}
 
 					var account = await accountContext.GetAsync(dto.Login);
 
 					if (account.Password != dto.Password)
 					{
-						return Results.Unauthorized();
+						// return ResultsApi.Extensions.ImTeapot();
+						return ResultsApi.Extensions.Unauthorized("Ask your mom for password.");
 					}
 
 					var jwtToken = await jwtTokenGenerator.GenerateJwtToken(account);
 					var refreshToken = await refreshTokenManager.AssignOrRefreshTokenAsync(account);
 
-					return Results.Json(new { JwtToken = jwtToken, RefreshToken = refreshToken.Value });
+					return Microsoft.AspNetCore.Http.Results.Json(new
+						{ JwtToken = jwtToken, RefreshToken = refreshToken.Value });
 				}
 				catch
 				{
-					return Results.Unauthorized();
+					return ResultsApi.Unauthorized();
 				}
 			});
 

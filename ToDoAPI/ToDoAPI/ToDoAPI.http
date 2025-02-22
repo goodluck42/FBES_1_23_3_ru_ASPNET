@@ -2,9 +2,8 @@
 
 GET {{host}}/todos/910/10?sortby=0
 
-
 ###
-GET {{host}}/todos/-1
+GET {{host}}/todos/1
 
 // https://mysite.com/api/v1/todos/1
 // https://mysite.com/api/v2/todos/1
@@ -41,12 +40,12 @@ Content-Type: application/json
 }
 
 ###
-POST {{host}}/login
+POST {{host}}/login HTTP/2
 Content-Type: application/json
 
 {
 	"Login": "alex",
-	"Password": "alex"
+	"Password": "aleh"
 }
 
 
@@ -65,5 +64,15 @@ POST {{host}}/refresh
 Content-Type: application/json
 
 "c987cf8ffac0ca073fcc4ad66b67d87184a6d1d5ec65735f26dead0c602c8c06"
+
+###
+
+GET {{host}}/v1/my_todos?offset=-6&count=-10
+
+###
+
+GET http://localhost:5032/ooo
+
+
 
 
