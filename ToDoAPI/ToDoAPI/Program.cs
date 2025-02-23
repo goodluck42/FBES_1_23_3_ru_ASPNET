@@ -10,6 +10,7 @@ using ToDoAPI.Data;
 using ToDoAPI.Dtos;
 using ToDoAPI.Entity;
 using ToDoAPI.Extensions;
+using ToDoAPI.Hubs;
 using ToDoAPI.Middlewares;
 using ToDoAPI.Options;
 using ToDoAPI.Services;
@@ -51,13 +52,29 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).AddJw
 	};
 });
 builder.Services.AddAuthorization();
+builder.Services.AddSignalR();
 
 var app = builder.Build();
+
 
 app.UseMiddleware<PathLoggerMiddleware>();
 app.UseMiddleware<MethodLoggerMiddleware>();
 
 app.UseHttpsRedirection();
+
+app.UseCors(configure =>
+{
+	// configure.AllowAnyHeader()
+	// 	.AllowAnyMethod()
+	// 	.WithOrigins("http://localhost:5173")
+	// 	.AllowCredentials();
+	
+	configure.SetIsOriginAllowed(origin => true) // Allows all origins
+		.AllowAnyHeader()
+		.AllowAnyMethod()
+		.AllowCredentials(); // Required for SignalR with authentication has context menu
+});
+
 
 app.UseAuthentication();
 app.UseAuthorization();
@@ -67,7 +84,6 @@ if (!app.Environment.IsDevelopment())
 	app.UseHsts();
 }
 
-app.UseCors(configure => { configure.AllowAnyHeader().AllowAnyMethod().AllowAnyOrigin(); });
 
 #if DEBUG
 app.EnsureDatabaseCreated();
@@ -83,14 +99,9 @@ app.Use((context, @delegate) =>
 	return @delegate(context);
 });
 
-// app.MapHub<ChatHub>("/chat");
+app.MapHub<ChatHub>("/chat");
+
 app.Run();
 
-
-// public class ChatHub : Hub<ChatHub>
-// {
-// 	public async Task Send(string username, string message)
-// 	{
-// 		await Clients.All.Send(username, $"[{DateTime.Now}]: {message}");
-// 	}
-// }
+// aspnet_project
+// test123

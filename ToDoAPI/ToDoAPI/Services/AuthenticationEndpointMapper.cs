@@ -1,13 +1,8 @@
 global using ResultsApi = Microsoft.AspNetCore.Http.Results;
-using System.IdentityModel.Tokens.Jwt;
-using System.Net.Http.Headers;
 using System.Security.Claims;
-using System.Text;
 using AutoMapper;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.IdentityModel.Tokens;
 using ToDoAPI.Dtos;
 using ToDoAPI.Entity;
 using ToDoAPI.Extensions;
@@ -94,7 +89,7 @@ public class AuthenticationEndpointMapper : IEndpointMapper
 				}
 			});
 
-		group.MapGet("/login_info", [Authorize] async (ClaimsPrincipal principal) =>
+		group.MapGet("/login_info", [Authorize](ClaimsPrincipal principal) =>
 		{
 			var res = "";
 
@@ -109,22 +104,15 @@ public class AuthenticationEndpointMapper : IEndpointMapper
 			};
 		});
 
-		group.MapGet("/admin", [Authorize(Roles = "admin")] async (ClaimsPrincipal principal) =>
+		group.MapGet("/admin", [Authorize(Roles = "admin")](ClaimsPrincipal principal) =>
 		{
-			var res = "";
-
-			foreach (var claim in principal.Claims)
-			{
-				res += $"{claim.Type}: {claim.Value}\n";
-			}
-
 			return new
 			{
 				AdminData = "OK"
 			};
 		});
 
-		group.MapGet("/user", [Authorize(Roles = "admin,user")] async (ClaimsPrincipal principal) =>
+		group.MapGet("/user", [Authorize(Roles = "admin,user")](ClaimsPrincipal principal) =>
 		{
 			return new
 			{
