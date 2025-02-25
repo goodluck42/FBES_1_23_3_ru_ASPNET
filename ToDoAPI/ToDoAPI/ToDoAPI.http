@@ -1,12 +1,10 @@
-@host = http://localhost:5032/api
+@host = http://26.76.43.135:5032/api
 
 GET {{host}}/todos/910/10?sortby=0
 
 ###
-GET {{host}}/todos/1
-
-// https://mysite.com/api/v1/todos/1
-// https://mysite.com/api/v2/todos/1
+GET {{host}}/todos/-999
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJodHRwOi8vc2NoZW1hcy54bWxzb2FwLm9yZy93cy8yMDA1LzA1L2lkZW50aXR5L2NsYWltcy9uYW1lIjoiYWxleCIsImh0dHA6Ly9zY2hlbWFzLm1pY3Jvc29mdC5jb20vd3MvMjAwOC8wNi9pZGVudGl0eS9jbGFpbXMvcm9sZSI6Ik93bmVyIiwiZXhwIjoxNzQwNTA0NjI5LCJpc3MiOiJUb0RvQVBJIiwiYXVkIjoiVVNFUiJ9.rqt9e0bUNV81YOOjqltXhV26OCEkwKVIS-wxF00IAMw
 
 ###
 
@@ -40,34 +38,20 @@ Content-Type: application/json
 }
 
 ###
-POST {{host}}/login HTTP/2
+POST {{host}}/signin
 Content-Type: application/json
 
 {
 	"Login": "alex",
-	"Password": "aleh"
+	"Password": "alex"
 }
-
-
-
-
-###
-### eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJodHRwOi8vc2NoZW1hcy54bWxzb2FwLm9yZy93cy8yMDA1LzA1L2lkZW50aXR5L2NsYWltcy9uYW1lIjoiYWxleCIsImV4cCI6MTczOTQ2NTUzNywiaXNzIjoiVG9Eb0FQSSIsImF1ZCI6IlVTRVIifQ.5lE9NpkcbvUHTCDvOS93WuGdjimP_lyYD6RrRmeW_6o
-### c987cf8ffac0ca073fcc4ad66b67d87184a6d1d5ec65735f26dead0c602c8c06
-
-GET {{host}}/login_info
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJodHRwOi8vc2NoZW1hcy54bWxzb2FwLm9yZy93cy8yMDA1LzA1L2lkZW50aXR5L2NsYWltcy9uYW1lIjoiYWxleCIsImV4cCI6MTczOTQ2NTUzNywiaXNzIjoiVG9Eb0FQSSIsImF1ZCI6IlVTRVIifQ.5lE9NpkcbvUHTCDvOS93WuGdjimP_lyYD6RrRmeW_6o
 
 ###
 
 POST {{host}}/refresh
 Content-Type: application/json
 
-"c987cf8ffac0ca073fcc4ad66b67d87184a6d1d5ec65735f26dead0c602c8c06"
-
-###
-
-GET {{host}}/v1/my_todos?offset=-6&count=-10
+"c8756b4b0180fa8f5a3b0ec882fd3e7a87d5da3ed7eec06902219b53ee71dacc"
 
 ###
 
@@ -75,4 +59,13 @@ GET http://localhost:5032/ooo
 
 
 
+###
 
+GET {{host}}/claims
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJodHRwOi8vc2NoZW1hcy54bWxzb2FwLm9yZy93cy8yMDA1LzA1L2lkZW50aXR5L2NsYWltcy9uYW1lIjoiYWxleCIsImh0dHA6Ly9zY2hlbWFzLm1pY3Jvc29mdC5jb20vd3MvMjAwOC8wNi9pZGVudGl0eS9jbGFpbXMvcm9sZSI6Ik93bmVyIiwiZXhwIjoxNzQwNTAzNDcyLCJpc3MiOiJUb0RvQVBJIiwiYXVkIjoiVVNFUiJ9._F-s4CDQiQbSLifFBcE_EnqDFProrukfs9ABzDvSQGQ
+
+
+###
+
+GET {{host}}/admin
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJodHRwOi8vc2NoZW1hcy54bWxzb2FwLm9yZy93cy8yMDA1LzA1L2lkZW50aXR5L2NsYWltcy9uYW1lIjoiYWxleCIsImh0dHA6Ly9zY2hlbWFzLm1pY3Jvc29mdC5jb20vd3MvMjAwOC8wNi9pZGVudGl0eS9jbGFpbXMvcm9sZSI6IkJhbm5lZCIsImV4cCI6MTc0MDUwMzU2NiwiaXNzIjoiVG9Eb0FQSSIsImF1ZCI6IlVTRVIifQ.-Ovg8JEFv_CiCXr2tvcNLVnoJjm6BIGHZxu1qbuV1MQ

@@ -3,16 +3,21 @@ using System.Text;
 using AutoMapper;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.IdentityModel.Tokens;
 using ToDoAPI;
+using ToDoAPI.AuthorizationHandlers;
 using ToDoAPI.Data;
 using ToDoAPI.Dtos;
+using ToDoAPI.EndpointMappers;
 using ToDoAPI.Entity;
 using ToDoAPI.Extensions;
 using ToDoAPI.Hubs;
 using ToDoAPI.Middlewares;
 using ToDoAPI.Options;
+using ToDoAPI.Requirements;
+using ToDoAPI.Security;
 using ToDoAPI.Services;
 using AuthenticationSchemes = Microsoft.AspNetCore.Server.HttpSys.AuthenticationSchemes;
 using HttpVersion = System.Net.HttpVersion;
@@ -21,6 +26,7 @@ var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.Configure<JwtOptions>(options => { options.ExpiresIn = TimeSpan.FromMinutes(1); });
 
+builder.Services.AddTransient<IAuthorizationHandler, RoleHierarchyHandler>();
 builder.Services.AddRouting(opts => { opts.LowercaseUrls = true; });
 builder.Services.AddSingleton(_ => MapperConfig.Init());
 builder.Services.AddDbContextFactory<AppDbContext>();
@@ -51,7 +57,31 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).AddJw
 		IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration.GetJwtSecret()))
 	};
 });
-builder.Services.AddAuthorization();
+
+builder.Services.AddAuthorization(options =>
+{
+	options.AddPolicy(Policies.AdminPolicy, policy =>
+	{
+		// policy.RequireRole(Roles.Admin);
+
+		policy.AddRequirements(new RoleHierarchyRequirement
+		{
+			Role = Roles.Admin
+		});
+	});
+
+	options.AddPolicy(Policies.UserPolicy, policy =>
+	{
+		policy.AddRequirements(new RoleHierarchyRequirement
+		{
+			Role = Roles.User
+		});
+
+		//policy.RequireRole(Roles.Admin, Roles.User);
+
+		// policy.RequireClaim();
+	});
+});
 builder.Services.AddSignalR();
 
 var app = builder.Build();
@@ -68,13 +98,12 @@ app.UseCors(configure =>
 	// 	.AllowAnyMethod()
 	// 	.WithOrigins("http://localhost:5173")
 	// 	.AllowCredentials();
-	
+
 	configure.SetIsOriginAllowed(origin => true) // Allows all origins
 		.AllowAnyHeader()
 		.AllowAnyMethod()
 		.AllowCredentials(); // Required for SignalR with authentication has context menu
 });
-
 
 app.UseAuthentication();
 app.UseAuthorization();

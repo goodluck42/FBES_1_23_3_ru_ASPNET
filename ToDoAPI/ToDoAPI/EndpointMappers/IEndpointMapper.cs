@@ -1,4 +1,4 @@
-namespace ToDoAPI.Services;
+namespace ToDoAPI.EndpointMappers;
 
 public interface IEndpointMapper
 {

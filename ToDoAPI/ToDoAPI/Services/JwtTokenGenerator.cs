@@ -14,7 +14,7 @@ public class JwtTokenGenerator(
 	IAccountContext accountContext,
 	IOptions<JwtOptions> jwtOptions) : IJwtTokenGenerator
 {
-	public async Task<string> GenerateJwtToken(Account account)
+	public async Task<string> GenerateJwtTokenAsync(Account account)
 	{
 		var claims = new List<Claim> { new(ClaimsIdentity.DefaultNameClaimType, account.Login) };
 		var roles = await accountContext.GetRolesAsync(account.Id);

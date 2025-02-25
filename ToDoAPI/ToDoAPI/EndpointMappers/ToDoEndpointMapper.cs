@@ -1,12 +1,12 @@
 using System.Text.Json;
 using AutoMapper;
-using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http.HttpResults;
 using ToDoAPI.Dtos;
 using ToDoAPI.Entity;
 using ToDoAPI.Extensions;
+using ToDoAPI.Security;
+using ToDoAPI.Services;
 
-namespace ToDoAPI.Services;
+namespace ToDoAPI.EndpointMappers;
 
 // ABAC - Attribute Based Access Control
 
@@ -15,7 +15,7 @@ public class ToDoEndpointMapper : IEndpointMapper
 	public static void Map(IEndpointRouteBuilder endpoints)
 	{
 		var group = endpoints.MapGroup("/api/todos");
-
+		
 		//// versioning
 		// api/v1
 		// api/v2
@@ -35,17 +35,17 @@ public class ToDoEndpointMapper : IEndpointMapper
 		//// PUT & DELETE
 		// api/v1/users/{id} - PUT or DELETE replace or delete a user 
 
-		endpoints.MapGet("/api/v1/my_todos", (int? offset, int? count = 10) =>
-		{
-			Console.WriteLine("Endpoint");
-
-			return ResultsApi.Json(new
-			{
-				Offset = offset,
-				Count = count,
-				OK = true
-			});
-		}).AddEndpointFilter<ValidationFilter>();
+		// endpoints.MapGet("/api/v1/my_todos", (int? offset, int? count = 10) =>
+		// {
+		// 	Console.WriteLine("Endpoint");
+		//
+		// 	return ResultsApi.Json(new
+		// 	{
+		// 		Offset = offset,
+		// 		Count = count,
+		// 		OK = true
+		// 	});
+		// }).AddEndpointFilter<ValidationFilter>();
 
 		group.MapPost("/", async (IToDoContext context, Mapper mapper, ToDoItemDto? toDoItemDto) =>
 		{
@@ -60,13 +60,13 @@ public class ToDoEndpointMapper : IEndpointMapper
 		});
 
 		group.MapGet("/{id:int}",
-				async (IToDoContext context, int id) => { return ResultsApi.Json(await context.GetAsync(id)); })
+				async (IToDoContext context, int id) => ResultsApi.Json(await context.GetAsync(id)))
 			.AddEndpointFilter(
 				async (ctx, next) =>
 				{
 					var id = ctx.GetArgument<int>(1);
 
-					if (id <= 0)
+					if (id < -1000)
 					{
 						return ResultsApi.BadRequest("Invalid Id");
 					}
@@ -90,7 +90,7 @@ public class ToDoEndpointMapper : IEndpointMapper
 			}
 
 			return ResultsApi.Json(await sorter.SortBy(sortBy.Value, isAscending, new PaginationSegment(offset, count)));
-		}).RequireAuthorization();
+		});
 
 		group.MapGet("/dump", async (IToDoContext context, HttpContext httpContext) =>
 		{
@@ -121,17 +121,9 @@ public class ToDoEndpointMapper : IEndpointMapper
 
 			return ResultsApi.Ok();
 		});
-	}
 
-	// private static IResult GetMyTodos(int? offset, int? count = 10)
-	// {
-	// 	return ResultsApi.Json(new
-	// 	{
-	// 		Offset = offset,
-	// 		Count = count,
-	// 		OK = true
-	// 	});
-	// }
+		group.RequireAuthorization(Policies.UserPolicy);
+	}
 }
 
 file sealed class ValidationFilter(IConfiguration configuration) : IEndpointFilter

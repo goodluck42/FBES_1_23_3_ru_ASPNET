@@ -6,9 +6,11 @@ using Microsoft.AspNetCore.Mvc;
 using ToDoAPI.Dtos;
 using ToDoAPI.Entity;
 using ToDoAPI.Extensions;
+using ToDoAPI.Security;
+using ToDoAPI.Services;
 
 
-namespace ToDoAPI.Services;
+namespace ToDoAPI.EndpointMappers;
 
 public class AuthenticationEndpointMapper : IEndpointMapper
 {
@@ -43,7 +45,7 @@ public class AuthenticationEndpointMapper : IEndpointMapper
 			try
 			{
 				var refreshToken = await refreshTokenManager.RefreshTokenAsync(rawRefreshToken);
-				var jwtToken = jwtTokenGenerator.GenerateJwtToken(refreshToken.Account!);
+				var jwtToken = await jwtTokenGenerator.GenerateJwtTokenAsync(refreshToken.Account!);
 
 				return ResultsApi.Json(new { JwtToken = jwtToken, RefreshToken = refreshToken.Value });
 			}
@@ -54,7 +56,7 @@ public class AuthenticationEndpointMapper : IEndpointMapper
 		});
 
 
-		group.MapPost("/login",
+		group.MapPost("/signin",
 			async (
 				[FromServices] IAccountContext accountContext,
 				[FromServices] IJwtTokenGenerator jwtTokenGenerator,
@@ -77,11 +79,11 @@ public class AuthenticationEndpointMapper : IEndpointMapper
 						return ResultsApi.Extensions.Unauthorized("Ask your mom for password.");
 					}
 
-					var jwtToken = await jwtTokenGenerator.GenerateJwtToken(account);
+					var jwtToken = await jwtTokenGenerator.GenerateJwtTokenAsync(account);
 					var refreshToken = await refreshTokenManager.AssignOrRefreshTokenAsync(account);
 
-					return Microsoft.AspNetCore.Http.Results.Json(new
-						{ JwtToken = jwtToken, RefreshToken = refreshToken.Value });
+					return ResultsApi.Json(new
+						{ JwtToken = jwtToken, RefreshToken = refreshToken.Value }); // stored in localStorage
 				}
 				catch
 				{
@@ -89,35 +91,28 @@ public class AuthenticationEndpointMapper : IEndpointMapper
 				}
 			});
 
-		group.MapGet("/login_info", [Authorize](ClaimsPrincipal principal) =>
+		group.MapGet("/claims", (ClaimsPrincipal claimsPrincipal) =>
 		{
-			var res = "";
-
-			foreach (var claim in principal.Claims)
-			{
-				res += $"{claim.Type}: {claim.Value}\n";
-			}
-
 			return new
 			{
-				ClaimInfos = res
+				Claims = claimsPrincipal.Claims.Select(x => $"{x.Type} : '{x.Value}'")
 			};
 		});
-
-		group.MapGet("/admin", [Authorize(Roles = "admin")](ClaimsPrincipal principal) =>
+		
+		group.MapGet("/admin", () =>
 		{
 			return new
 			{
 				AdminData = "OK"
 			};
-		});
+		}).RequireAuthorization(Policies.AdminPolicy);
 
-		group.MapGet("/user", [Authorize(Roles = "admin,user")](ClaimsPrincipal principal) =>
+		group.MapGet("/user", () =>
 		{
 			return new
 			{
 				DefaultData = "OK"
 			};
-		});
+		}).RequireAuthorization(Policies.UserPolicy);
 	}
 }

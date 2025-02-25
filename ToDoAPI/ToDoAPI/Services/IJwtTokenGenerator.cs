@@ -4,5 +4,5 @@ namespace ToDoAPI.Services;
 
 public interface IJwtTokenGenerator
 {
-	Task<string> GenerateJwtToken(Account account);
+	Task<string> GenerateJwtTokenAsync(Account account);
 }
