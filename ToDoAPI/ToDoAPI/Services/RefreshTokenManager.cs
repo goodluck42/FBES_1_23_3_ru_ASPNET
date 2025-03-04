@@ -17,7 +17,7 @@ public class RefreshTokenManager(
 		{
 			AccountId = account.Id,
 			Value = await refreshTokenGenerator.GenerateRefreshTokenAsync(account),
-			Expires = DateTime.Now.AddMonths(12),
+			Expires = GetExpires(),
 		});
 
 		await dbContext.SaveChangesAsync();
@@ -44,6 +44,7 @@ public class RefreshTokenManager(
 
 		var refreshToken2 = dbContext.RefreshTokens.Include(x => x.Account).First(x => x.Value == refreshToken);
 
+		refreshToken2.Expires = GetExpires();
 		refreshToken2.Value = await refreshTokenGenerator.GenerateRefreshTokenAsync(refreshToken2.Account!);
 
 		await dbContext.SaveChangesAsync();
@@ -61,11 +62,12 @@ public class RefreshTokenManager(
 		await using var dbContext = await dbContextFactory.CreateDbContextAsync();
 
 		// RefreshToken(account, dbContext);
-		
+
 		var refreshToken = dbContext.RefreshTokens.FirstOrDefault(x => x.AccountId == account.Id);
 
 		if (refreshToken is not null)
 		{
+			refreshToken.Expires = GetExpires();
 			refreshToken.Value = await refreshTokenGenerator.GenerateRefreshTokenAsync(account);
 
 			await dbContext.SaveChangesAsync();
@@ -77,7 +79,7 @@ public class RefreshTokenManager(
 		{
 			AccountId = account.Id,
 			Value = await refreshTokenGenerator.GenerateRefreshTokenAsync(account),
-			Expires = DateTime.Now.AddMonths(12),
+			Expires = GetExpires(),
 		});
 
 		await dbContext.SaveChangesAsync();
@@ -85,8 +87,5 @@ public class RefreshTokenManager(
 		return entry.Entity;
 	}
 
-	private void RefreshToken(Account account, AppDbContext dbContext)
-	{
-		// 
-	}
+	private static DateTime GetExpires() => DateTime.Now.AddMinutes(1);
 }

@@ -10,6 +10,7 @@ public sealed class RefreshTokenConfiguration : IEntityTypeConfiguration<Refresh
 	{
 		builder.HasKey(e => e.Id);
 		builder.Property(e => e.Value).HasMaxLength(ValueMaxLength);
+		builder.HasIndex(e => e.Expires).IsUnique(false);
 	}
 
 	public const int ValueMaxLength = 32;

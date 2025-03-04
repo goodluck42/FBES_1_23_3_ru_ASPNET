@@ -1,28 +1,17 @@
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Caching.Memory;
 using ToDoAPI.Data;
 using ToDoAPI.Entity;
 using ToDoAPI.Exceptions;
 
 namespace ToDoAPI.Services;
 
-public sealed class ToDoContextTest : ToDoContextBase, IOffsetTodoItemPagination, IToDoItemSorter
+public sealed class ToDoContextTest(IDbContextFactory<AppDbContext> dbContextFactory, IMemoryCache memoryCache)
+	: ToDoContextBase, IOffsetTodoItemPagination, IToDoItemSorter
 {
-	private readonly IDbContextFactory<AppDbContext> _dbContextFactory;
-
-	public ToDoContextTest(IDbContextFactory<AppDbContext> dbContextFactory)
-	{
-		_dbContextFactory = dbContextFactory;
-#if DEBUG
-		Console.WriteLine(Id);
-#endif
-	}
-#if DEBUG
-	public Guid Id { get; } = Guid.NewGuid();
-#endif
-
 	public override async Task<ToDoItem> AddAsync(ToDoItem item)
 	{
-		var dbContext = await _dbContextFactory.CreateDbContextAsync();
+		var dbContext = await dbContextFactory.CreateDbContextAsync();
 
 		await using (dbContext)
 		{
@@ -38,7 +27,7 @@ public sealed class ToDoContextTest : ToDoContextBase, IOffsetTodoItemPagination
 
 	public override async Task RemoveAsync(int id)
 	{
-		await using var dbContext = await _dbContextFactory.CreateDbContextAsync();
+		await using var dbContext = await dbContextFactory.CreateDbContextAsync();
 
 		dbContext.ToDoItems.Remove(new ToDoItem
 		{
@@ -50,7 +39,7 @@ public sealed class ToDoContextTest : ToDoContextBase, IOffsetTodoItemPagination
 
 	public override async Task UpdateAsync(int id, ToDoItem item)
 	{
-		await using var dbContext = await _dbContextFactory.CreateDbContextAsync();
+		await using var dbContext = await dbContextFactory.CreateDbContextAsync();
 
 		var originalItem = await dbContext.ToDoItems.FirstOrDefaultAsync(x => x.Id == id);
 
@@ -70,27 +59,49 @@ public sealed class ToDoContextTest : ToDoContextBase, IOffsetTodoItemPagination
 
 	public override async Task<IEnumerable<ToDoItem>> GetAsync()
 	{
-		await using (var dbContext = await _dbContextFactory.CreateDbContextAsync())
+		await using (var dbContext = await dbContextFactory.CreateDbContextAsync())
 			return await dbContext.ToDoItems.ToListAsync();
 	}
 
 	public override async Task<ToDoItem> GetAsync(int id)
 	{
-		await using (var dbContext = await _dbContextFactory.CreateDbContextAsync())
-			return dbContext.ToDoItems.FirstOrDefault(x => x.Id == id) ?? throw new ToDoItemNotFoundException();
+		var item = memoryCache.Get<ToDoItem>(id);
+
+		if (item is null)
+		{
+#if DEBUG
+			Console.WriteLine("Item from DB");
+#endif
+			await using var dbContext = await dbContextFactory.CreateDbContextAsync();
+
+			var dbItem = dbContext.ToDoItems.FirstOrDefault(x => x.Id == id) ?? throw new ToDoItemNotFoundException();
+
+			memoryCache.Set(id, dbItem, new MemoryCacheEntryOptions
+			{
+				AbsoluteExpirationRelativeToNow = TimeSpan.FromSeconds(90)
+			});
+
+			Console.WriteLine();
+
+			return dbItem;
+		}
+#if DEBUG
+		Console.WriteLine("Item from Cache");
+#endif
+		return item;
 	}
 
 	public async Task<IEnumerable<ToDoItem>> GetAsync(PaginationSegment paginationSegment)
 	{
-		await using var dbContext = await _dbContextFactory.CreateDbContextAsync();
+		await using var dbContext = await dbContextFactory.CreateDbContextAsync();
 
 		return await dbContext.ToDoItems.Skip(paginationSegment.Offset).Take(paginationSegment.Count).ToListAsync();
 	}
-	
+
 	public async Task<IEnumerable<ToDoItem>> SortBy(ToDoItemSortOption option, bool isAscending = true,
 		PaginationSegment? paginationSegment = null)
 	{
-		await using var dbContext = await _dbContextFactory.CreateDbContextAsync();
+		await using var dbContext = await dbContextFactory.CreateDbContextAsync();
 
 		if (paginationSegment is null)
 		{

@@ -13,6 +13,7 @@ using ToDoAPI.Dtos;
 using ToDoAPI.EndpointMappers;
 using ToDoAPI.Entity;
 using ToDoAPI.Extensions;
+using ToDoAPI.HostedServices;
 using ToDoAPI.Hubs;
 using ToDoAPI.Middlewares;
 using ToDoAPI.Options;
@@ -83,9 +84,11 @@ builder.Services.AddAuthorization(options =>
 	});
 });
 builder.Services.AddSignalR();
+builder.Services.AddMemoryCache();
+builder.Services.AddHostedService<RefreshTokenCleanerBackgroundService>();
+builder.Services.AddLogging(builder => { builder.AddConsole(); });
 
 var app = builder.Build();
-
 
 app.UseMiddleware<PathLoggerMiddleware>();
 app.UseMiddleware<MethodLoggerMiddleware>();
@@ -121,12 +124,6 @@ app.EnsureDatabaseCreated();
 app.MapEndpoints<ToDoEndpointMapper>();
 app.MapEndpoints<AuthenticationEndpointMapper>();
 app.MapControllers();
-app.Use((context, @delegate) =>
-{
-	Console.WriteLine("Hello World!");
-
-	return @delegate(context);
-});
 
 app.MapHub<ChatHub>("/chat");
 
